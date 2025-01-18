@@ -1,64 +1,83 @@
-const data = [
-    { item: "City A", value: 500000, image: "images/city-a.jpg" },
-    { item: "City B", value: 1200000, image: "images/city-b.jpg" },
-    { item: "City C", value: 750000, image: "images/city-c.jpg" },
-    { item: "City D", value: 250000, image: "images/city-d.jpg" },
-  ];
-  
-  let score = 0;
-  let currentPair = [];
-  
-  // Randomly select two items
-  function getRandomItems() {
-    return data.sort(() => 0.5 - Math.random()).slice(0, 2);
+// Diplomas and their popularity values
+const diplomas = [
+  { name: "Diploma 1", popularity: 800000, image: "Images/DCPE.png" },
+  { name: "Diploma 2", popularity: 1000000, image: "Images/DEEE.png" },
+  { name: "Diploma 3", popularity: 500000, image: "Images/DAE.png" },
+  { name: "Diploma 4", popularity: 100000, image: "Images/DEB.png" },
+];
+
+// DOM Elements
+const item1Name = document.getElementById("item1-name");
+const item1Popularity = document.getElementById("item1-popularity");
+const item1Img = document.getElementById("item1-img");
+const item2Name = document.getElementById("item2-name");
+const item2Popularity = document.getElementById("item2-popularity");
+const item2Img = document.getElementById("item2-img");
+const higherBtn = document.getElementById("higher-btn");
+const lowerBtn = document.getElementById("lower-btn");
+const scoreDisplay = document.getElementById("score");
+const retryBtn = document.getElementById("retry-btn");
+
+// Variables
+let score = 0;
+let currentIndex = 0;
+let nextIndex = 1;
+
+// Initialize the game
+function initGame() {
+  score = 0;
+  currentIndex = 0;
+  nextIndex = 1;
+  updateItems();
+  scoreDisplay.textContent = `Score: ${score}`;
+  retryBtn.style.display = "none";
+}
+
+// Update diplomas on the screen
+function updateItems() {
+  const currentDiploma = diplomas[currentIndex];
+  const nextDiploma = diplomas[nextIndex];
+
+  item1Name.textContent = currentDiploma.name;
+  item1Popularity.textContent = `Popularity: ${currentDiploma.popularity}`;
+  item1Img.src = currentDiploma.image;
+
+  item2Name.textContent = nextDiploma.name;
+  item2Img.src = nextDiploma.image;
+  item2Popularity.textContent = `Popularity: ${nextDiploma.popularity}`;
+  item2Popularity.style.display = "none";
+}
+
+// Check the user's choice
+function checkChoice(isHigher) {
+  const currentDiploma = diplomas[currentIndex];
+  const nextDiploma = diplomas[nextIndex];
+
+  const correct = isHigher
+    ? nextDiploma.popularity > currentDiploma.popularity
+    : nextDiploma.popularity < currentDiploma.popularity;
+
+  if (correct) {
+    score++;
+    scoreDisplay.textContent = `Score: ${score}`;
+    currentIndex = nextIndex;
+    nextIndex = (nextIndex + 1) % diplomas.length;
+    updateItems();
+  } else {
+    endGame();
   }
-  
-  // Update the UI with current items
-  function updateUI(pair) {
-    document.getElementById("item1-name").innerText = `Item 1: ${pair[0].item}`;
-    document.getElementById("item1-value").innerText = `Value: ${pair[0].value.toLocaleString()}`;
-    document.getElementById("item1-img").src = pair[0].image;
-    document.getElementById("item2-name").innerText = `Item 2: ${pair[1].item}`;
-    document.getElementById("item2-img").src = pair[1].image;
-    document.getElementById("result").innerText = "";
-  }
-  
-  // Check the user's guess
-  function checkAnswer(isHigher) {
-    const [item1, item2] = currentPair;
-    const correct = isHigher ? item2.value > item1.value : item2.value < item1.value;
-  
-    if (correct) {
-      score++;
-      document.getElementById("result").innerText = "Correct!";
-      document.getElementById("score").innerText = `Score: ${score}`;
-      currentPair = getRandomItems();
-      updateUI(currentPair);
-    } else {
-      document.getElementById("result").innerText = `Wrong! Final score: ${score}`;
-      document.getElementById("higher-btn").disabled = true;
-      document.getElementById("lower-btn").disabled = true;
-      document.getElementById("retry-btn").style.display = "inline-block";
-    }
-  }
-  
-  // Restart the game
-  function restartGame() {
-    score = 0;
-    document.getElementById("score").innerText = `Score: ${score}`;
-    document.getElementById("higher-btn").disabled = false;
-    document.getElementById("lower-btn").disabled = false;
-    document.getElementById("retry-btn").style.display = "none";
-    currentPair = getRandomItems();
-    updateUI(currentPair);
-  }
-  
-  // Event listeners
-  document.getElementById("higher-btn").addEventListener("click", () => checkAnswer(true));
-  document.getElementById("lower-btn").addEventListener("click", () => checkAnswer(false));
-  document.getElementById("retry-btn").addEventListener("click", restartGame);
-  
-  // Initialize game
-  currentPair = getRandomItems();
-  updateUI(currentPair);
-  
+}
+
+// End the game
+function endGame() {
+  alert(`Game over! Your final score is ${score}.`);
+  retryBtn.style.display = "block";
+}
+
+// Event Listeners
+higherBtn.addEventListener("click", () => checkChoice(true));
+lowerBtn.addEventListener("click", () => checkChoice(false));
+retryBtn.addEventListener("click", initGame);
+
+// Start the game
+initGame();
